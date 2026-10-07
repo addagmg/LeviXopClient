@@ -218,7 +218,7 @@ public final class Modules {
         reg(new Module("Time Changer", Category.VISUAL, "Fixed time of day (tap < > to change)") {
             private final long[] T = {1000L, 6000L, 12500L, 14000L, 18000L};
             @Override public void onTick(MinecraftClient mc) {
-                if (mc.world != null) mc.world.setTimeOfDay(T[opt]);
+                if (mc.world != null) ((net.minecraft.client.world.ClientWorld.Properties) mc.world.getLevelProperties()).setTimeOfDay(T[opt]);
             }
         }.options(1, "Morning", "Noon", "Sunset", "Night", "Midnight"));
         reg(new Module("No Weather", Category.VISUAL, "Hide rain and thunder") {
