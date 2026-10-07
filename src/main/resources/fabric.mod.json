@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "id": "levixopclient",
+  "version": "${version}",
+  "name": "LeviXopclient",
+  "description": "Performance and utility client: FPS HUD, IP viewer and more.",
+  "authors": ["Adda"],
+  "license": "MIT",
+  "environment": "client",
+  "entrypoints": {
+    "client": ["dev.adda.levixop.LeviXopClient"]
+  },
+  "depends": {
+    "fabricloader": ">=0.16.10",
+    "minecraft": "~1.21.4",
+    "java": ">=21",
+    "fabric-api": "*"
+  }
+}

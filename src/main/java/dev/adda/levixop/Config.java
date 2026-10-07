@@ -1,0 +1,68 @@
+package dev.adda.levixop;
+
+import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.client.MinecraftClient;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Properties;
+
+public final class Config {
+    private static Path dir() { return FabricLoader.getInstance().getConfigDir(); }
+    public static Path main() { return dir().resolve("levixopclient.properties"); }
+    public static Path profile(int n) { return dir().resolve("levixopclient-profile-" + n + ".properties"); }
+
+    private static String key(Module m) { return m.name.replace(' ', '_'); }
+
+    public static void load() { read(main(), null); }
+    public static void save() { write(main()); }
+
+    public static void write(Path f) {
+        Properties p = new Properties();
+        for (Module m : Modules.ALL) {
+            String k = key(m);
+            p.setProperty(k + ".on", String.valueOf(m.enabled));
+            if (m.opts != null) p.setProperty(k + ".opt", String.valueOf(m.opt));
+            if (m instanceof HudModule h) {
+                p.setProperty(k + ".x", String.valueOf(h.x));
+                p.setProperty(k + ".y", String.valueOf(h.y));
+            }
+        }
+        try (OutputStream out = Files.newOutputStream(f)) {
+            p.store(out, "LeviXopclient");
+        } catch (IOException ignored) {}
+    }
+
+    /** mc == null: startup load (hooks run on first tick). Otherwise apply live. */
+    public static void read(Path f, MinecraftClient mc) {
+        if (!Files.exists(f)) return;
+        Properties p = new Properties();
+        try (InputStream in = Files.newInputStream(f)) { p.load(in); } catch (IOException e) { return; }
+        for (Module m : Modules.ALL) {
+            String k = key(m);
+            try {
+                String on = p.getProperty(k + ".on");
+                if (on != null && !m.pinned) {
+                    boolean b = Boolean.parseBoolean(on);
+                    if (mc == null) m.enabled = b; else m.setEnabled(b, mc);
+                }
+                String o = p.getProperty(k + ".opt");
+                if (o != null && m.opts != null) {
+                    int v = Integer.parseInt(o);
+                    if (v >= 0 && v < m.opts.length) {
+                        m.opt = v;
+                        if (mc != null && m.enabled && !m.pinned) { m.onDisable(mc); m.onEnable(mc); }
+                    }
+                }
+                if (m instanceof HudModule h) {
+                    String x = p.getProperty(k + ".x"), y = p.getProperty(k + ".y");
+                    if (x != null) h.x = Integer.parseInt(x);
+                    if (y != null) h.y = Integer.parseInt(y);
+                }
+            } catch (NumberFormatException ignored) {}
+        }
+    }
+}
