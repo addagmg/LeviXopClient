@@ -9,10 +9,13 @@ public final class Hud {
         MinecraftClient mc = MinecraftClient.getInstance();
         if (mc.player == null || mc.world == null) return;
         Stats.pollMouse(mc);
-        if (mc.options.hudHidden || mc.getDebugHud().shouldShowDebugHud()) return;
-        if (mc.currentScreen instanceof HudEditorScreen) return;
-        for (Module m : Modules.ALL) {
-            if (m.enabled && m instanceof HudModule h) h.render(ctx, mc, false);
+        boolean show = !(mc.options.hudHidden || mc.getDebugHud().shouldShowDebugHud()
+                || mc.currentScreen instanceof HudEditorScreen);
+        if (show) {
+            for (Module m : Modules.ALL) {
+                if (m.enabled && m instanceof HudModule h) h.render(ctx, mc, false);
+            }
         }
+        Recorder.capture(mc);
     }
 }

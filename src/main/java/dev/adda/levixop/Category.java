@@ -1,7 +1,7 @@
 package dev.adda.levixop;
 
 public enum Category {
-    PVP("PvP"), HUD("HUD"), PERFORMANCE("Perf"), VISUAL("Visual"), CLIENT("Client");
+    PERFORMANCE("Performance"), COMBAT("Combat"), MOVEMENT("Movement"), RENDER("Render"), HUD("HUD"), MISC("Misc");
     public final String label;
     Category(String l) { label = l; }
 }
