@@ -1,11 +1,14 @@
 # LeviXopclient
-Fabric client mod for Minecraft 1.21.4.
+Fabric client mod, Minecraft 1.21.1 - 1.21.11. Official theme: white + orange.
 
-Open menu: Right Shift (rebind in Options > Controls > LeviXopclient). Fallback: /lx
-Commands: /friend add|remove|list <name>, /wp add|del|list <name>
-Tabs: PvP, HUD, Perf, Visual, Client. Tap a row to toggle, tap "< option >" to change it.
-HUD Edit button: drag HUD elements. Prof/Save/Load: 3 profile slots.
+One jar per Minecraft version: LeviXopclient-mc<version>-<mod version>.jar
+GitHub Actions builds all versions (Actions tab > latest run > Artifacts). Red job = that version still needs a fix: send its log.
 
-Push from Termux:
-    git add . && git commit -m "update" && git push
-GitHub Actions builds the jar: Actions tab > latest run > Artifacts.
+Menu: Right Shift (rebind in Options > Controls). Fallback command: /lx
+Tabs: Modules, Performance, Combat, Movement, Render, HUD, Misc, Recorder, Profiles, Settings.
+Recorder: .minecraft/recordings/*.avi (MJPEG, no audio). Convert in Termux: bash tools/rec2mp4.sh <folder>
+
+Version support notes
+- 1.21.1 - 1.21.4: full feature set.
+- 1.21.5 - 1.21.11: builds are first-pass. Recorder, Time Changer (1.21.9+) and HitBox are stubbed until ported.
+Version specific code lives in src/compat/<group>/ (v1: 1.21.1, v2: 1.21.2-4, v3: 1.21.5, v4: 1.21.6-8, v5: 1.21.9-11).

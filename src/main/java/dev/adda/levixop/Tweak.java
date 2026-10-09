@@ -28,4 +28,9 @@ public class Tweak extends Module {
         }
         saved.clear();
     }
+
+    @Override
+    public void settingChanged(MinecraftClient mc) {
+        if (enabled) { onDisable(mc); onEnable(mc); }
+    }
 }

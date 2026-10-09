@@ -3,9 +3,6 @@ package dev.adda.levixop;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.PlayerListEntry;
 import net.minecraft.client.network.ServerInfo;
-import net.minecraft.client.option.CloudRenderMode;
-import net.minecraft.client.option.GraphicsMode;
-import net.minecraft.client.option.ParticlesMode;
 import net.minecraft.client.option.SimpleOption;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.effect.StatusEffectInstance;
@@ -35,12 +32,14 @@ public final class Modules {
         return l;
     }
 
-    public static final Module THEME, FRIENDS, HIT_SOUNDS;
+    public static final Module THEME, FRIENDS, NO_BG;
+    public static final RecorderModule RECORDER;
+    public static final HitSounds HIT_SOUNDS;
 
     static {
         // ---- default-on HUD (created first so they get the first screen slots)
         hud("FPS Display", Category.HUD, "Frames per second", mc -> List.of("FPS: " + mc.getCurrentFps())).on();
-        hud("CPS Counter", Category.PVP, "Left | right clicks per second",
+        hud("CPS Counter", Category.COMBAT, "Left | right clicks per second",
                 mc -> List.of("CPS: " + Stats.cps(Stats.L) + " | " + Stats.cps(Stats.R))).on();
         hud("Ping Display", Category.HUD, "Your latency", mc -> {
             PlayerListEntry e = mc.getNetworkHandler() == null ? null
@@ -53,6 +52,11 @@ public final class Modules {
             ServerInfo si = mc.getCurrentServerEntry();
             return List.of("IP: " + (si == null ? "Singleplayer" : si.address));
         }).on();
+
+        // ---- HUD tab controls
+        NO_BG = reg(new Module("Remove HUD Background", Category.HUD, "Hides the background of every HUD element"));
+        reg(new Module("HUD Editor", Category.HUD, "Drag HUD elements to move them")
+                .action(mc -> { if (mc.world != null) mc.setScreen(new HudEditorScreen(mc.currentScreen)); }));
 
         // ---- HUD
         hud("Direction", Category.HUD, "Facing direction and yaw", mc -> List.of(String.format("Facing: %s (%.0f)",
@@ -89,22 +93,22 @@ public final class Modules {
             return out;
         });
 
-        // ---- PvP
-        hud("Reach Display", Category.PVP, "Distance of your last hit",
+        // ---- Combat (legit displays only)
+        hud("Reach Display", Category.COMBAT, "Distance of your last hit",
                 mc -> List.of(Stats.reach <= 0 ? "Reach: -" : String.format("Reach: %.2f", Stats.reach)));
-        hud("Combo Counter", Category.PVP, "Hits in a row without being hit", mc -> List.of("Combo: " + Stats.combo));
-        hud("Damage Indicator", Category.PVP, "Damage of your last hit",
+        hud("Combo Counter", Category.COMBAT, "Hits in a row without being hit", mc -> List.of("Combo: " + Stats.combo));
+        hud("Damage Indicator", Category.COMBAT, "Damage of your last hit",
                 mc -> List.of(String.format("Damage: %.1f", Stats.lastDamage)));
-        hud("Sprint Status", Category.PVP, "Walking / sprinting / sneaking", mc -> {
+        hud("Sprint Status", Category.COMBAT, "Walking / sprinting / sneaking", mc -> {
             String s = mc.player.getAbilities().flying ? "Flying"
                     : mc.player.isSneaking() ? "Sneaking" : mc.player.isSprinting() ? "Sprinting" : "Walking";
             return List.of(s);
         });
-        hud("W-Tap Indicator", Category.PVP, "Shows when you W-tap",
+        hud("W-Tap Indicator", Category.COMBAT, "Shows when you W-tap",
                 mc -> List.of(System.currentTimeMillis() - Stats.wtap < 800 ? "W-Tap: YES" : "W-Tap: -"));
-        hud("S-Tap Indicator", Category.PVP, "Shows when you S-tap",
+        hud("S-Tap Indicator", Category.COMBAT, "Shows when you S-tap",
                 mc -> List.of(System.currentTimeMillis() - Stats.stap < 800 ? "S-Tap: YES" : "S-Tap: -"));
-        hud("Potion Status", Category.PVP, "Active effects with time left", mc -> {
+        hud("Potion Status", Category.COMBAT, "Active effects with time left", mc -> {
             List<String> l = new ArrayList<>();
             for (StatusEffectInstance e : mc.player.getStatusEffects()) {
                 int s = e.getDuration() / 20;
@@ -113,20 +117,20 @@ public final class Modules {
             }
             return l;
         });
-        hud("Pearl Tracker", Category.PVP, "Ender pearls in your inventory",
+        hud("Pearl Tracker", Category.COMBAT, "Ender pearls in your inventory",
                 mc -> List.of("Pearls: " + Stats.count(mc, Items.ENDER_PEARL)));
-        hud("Mace Tracker", Category.PVP, "Mace in inventory and fall distance", mc -> List.of(
+        hud("Mace Tracker", Category.COMBAT, "Mace in inventory and fall distance", mc -> List.of(
                 "Mace: " + (Stats.count(mc, Items.MACE) > 0 ? "yes" : "no"),
                 String.format("Fall: %.1f", (double) mc.player.fallDistance)));
-        hud("Crystal Counter", Category.PVP, "End crystals in your inventory",
+        hud("Crystal Counter", Category.COMBAT, "End crystals in your inventory",
                 mc -> List.of("Crystals: " + Stats.count(mc, Items.END_CRYSTAL)));
-        hud("Totem Counter", Category.PVP, "Totems of undying in your inventory",
+        hud("Totem Counter", Category.COMBAT, "Totems of undying in your inventory",
                 mc -> List.of("Totems: " + Stats.count(mc, Items.TOTEM_OF_UNDYING)));
-        hud("Item Counter", Category.PVP, "Total of the item you hold", mc -> {
+        hud("Item Counter", Category.COMBAT, "Total of the item you hold", mc -> {
             ItemStack s = mc.player.getMainHandStack();
             return List.of(s.isEmpty() ? "Item: -" : s.getName().getString() + ": " + Stats.count(mc, s.getItem()));
         });
-        hud("Durability HUD", Category.PVP, "Durability of the item you hold", mc -> {
+        hud("Durability HUD", Category.COMBAT, "Durability of the item you hold", mc -> {
             ItemStack s = mc.player.getMainHandStack();
             return List.of(s.isDamageable() ? "Durability: " + (s.getMaxDamage() - s.getDamage()) + "/" + s.getMaxDamage() : "Durability: -");
         });
@@ -134,11 +138,10 @@ public final class Modules {
         reg(new Widgets.ArmorStatus());
         reg(new Widgets.TargetHud());
         reg(new Widgets.InventoryHud());
+        HIT_SOUNDS = reg(new HitSounds());
 
-        HIT_SOUNDS = reg(new Module("Hit Sounds", Category.PVP, "Sound when you hit something (tap < > to change)")
-                .options(0, "Orb", "Crit", "Ding"));
-
-        reg(new Module("Auto Sprint", Category.PVP, "Sprint automatically while moving forward") {
+        // ---- Movement
+        reg(new Module("Auto Sprint", Category.MOVEMENT, "Sprint automatically while moving forward") {
             @Override public void onTick(MinecraftClient mc) {
                 if (mc.player == null) return;
                 mc.options.sprintKey.setPressed(mc.options.forwardKey.isPressed() && !mc.player.isSneaking());
@@ -147,13 +150,14 @@ public final class Modules {
 
         // ---- Performance (option based; real engine optimisation needs Sodium-style mods)
         reg(new Tweak("FPS Boost", "Fast graphics, no clouds, no entity shadows") {
+            private final Setting.Multi f = add(new Setting.Multi("Features", "Fast Graphics", "No Clouds", "No Entity Shadows"));
             @Override public void onEnable(MinecraftClient mc) {
-                set(mc.options.getGraphicsMode(), GraphicsMode.FAST);
-                set(mc.options.getCloudRenderMode(), CloudRenderMode.OFF);
-                set(mc.options.getEntityShadows(), false);
+                if (f.get(0)) set(mc.options.getGraphicsMode(), Lx.named(mc.options.getGraphicsMode(), "FAST"));
+                if (f.get(1)) set(mc.options.getCloudRenderMode(), Lx.named(mc.options.getCloudRenderMode(), "OFF"));
+                if (f.get(2)) set(mc.options.getEntityShadows(), false);
             }
         });
-        reg(new Tweak("Entity Culling", "Render fewer far entities (tap < > : Normal / Aggressive)") {
+        reg(new Tweak("Entity Culling", "Render fewer far entities (Normal / Aggressive)") {
             @Override public void onEnable(MinecraftClient mc) {
                 set(mc.options.getEntityDistanceScaling(), opt == 0 ? 0.75 : 0.5);
             }
@@ -168,18 +172,22 @@ public final class Modules {
             @Override public void onEnable(MinecraftClient mc) { set(mc.options.getSimulationDistance(), 5); }
         });
         reg(new Tweak("Particle Optimizer", "Minimal particles") {
-            @Override public void onEnable(MinecraftClient mc) { set(mc.options.getParticles(), ParticlesMode.MINIMAL); }
+            @Override public void onEnable(MinecraftClient mc) { set(mc.options.getParticles(), Lx.named(mc.options.getParticles(), "MINIMAL")); }
         });
-        reg(new Tweak("Dynamic FPS", "Cap to 30 FPS while the game window is unfocused") {
+        reg(new Tweak("Dynamic FPS", "Lower FPS cap while the game window is unfocused") {
+            private final Setting.Slider bgFps = add(new Setting.Slider("Background FPS", 10, 60, 5, 30, ""));
             private boolean active;
             @Override public void onTick(MinecraftClient mc) {
                 boolean bg = !mc.isWindowFocused();
-                if (bg && !active) { set(mc.options.getMaxFps(), 30); active = true; }
+                if (bg && !active) { set(mc.options.getMaxFps(), (int) bgFps.get()); active = true; }
                 else if (!bg && active) { onDisable(mc); active = false; }
             }
             @Override public void onDisable(MinecraftClient mc) { super.onDisable(mc); active = false; }
         });
-        reg(new Tweak("Render Distance Optimizer", "Adjusts view distance automatically from your FPS") {
+        reg(new Tweak("Smart Render", "Adjusts view distance automatically from your FPS") {
+            private final Setting.Slider minVd = add(new Setting.Slider("Min Distance", 4, 12, 1, 6, ""));
+            private final Setting.Slider lowFps = add(new Setting.Slider("Low FPS", 20, 60, 5, 35, ""));
+            private final Setting.Slider highFps = add(new Setting.Slider("High FPS", 60, 200, 10, 120, ""));
             private int t;
             @Override public void onEnable(MinecraftClient mc) { set(mc.options.getViewDistance(), mc.options.getViewDistance().getValue()); }
             @Override public void onTick(MinecraftClient mc) {
@@ -187,22 +195,23 @@ public final class Modules {
                 t = 0;
                 SimpleOption<Integer> vd = mc.options.getViewDistance();
                 int cur = vd.getValue(), orig = original(vd), fps = mc.getCurrentFps();
-                if (fps < 35 && cur > 6) vd.setValue(cur - 1);
-                else if (fps > 120 && cur < orig) vd.setValue(cur + 1);
+                if (fps < lowFps.get() && cur > minVd.get()) vd.setValue(cur - 1);
+                else if (fps > highFps.get() && cur < orig) vd.setValue(cur + 1);
             }
         });
         reg(new Tweak("Memory Optimizer", "Runs garbage collection when memory is almost full") {
+            private final Setting.Slider limit = add(new Setting.Slider("Threshold", 60, 95, 5, 80, "%"));
             private int t;
             @Override public void onTick(MinecraftClient mc) {
                 if (++t < 1200) return;
                 t = 0;
                 Runtime r = Runtime.getRuntime();
-                if ((r.totalMemory() - r.freeMemory()) > 0.8 * r.maxMemory()) System.gc();
+                if ((r.totalMemory() - r.freeMemory()) > (limit.get() / 100.0) * r.maxMemory()) System.gc();
             }
         });
 
-        // ---- Visual
-        reg(new Module("Fullbright", Category.VISUAL, "See in the dark (local night vision)") {
+        // ---- Render
+        reg(new Module("Fullbright", Category.RENDER, "See in the dark (local night vision)") {
             @Override public void onTick(MinecraftClient mc) {
                 if (mc.player != null && !mc.player.hasStatusEffect(StatusEffects.NIGHT_VISION)) {
                     mc.player.addStatusEffect(new StatusEffectInstance(StatusEffects.NIGHT_VISION, 100000, 0, false, false, false));
@@ -215,22 +224,27 @@ public final class Modules {
                 }
             }
         });
-        reg(new Module("Time Changer", Category.VISUAL, "Fixed time of day (tap < > to change)") {
+        reg(new Module("Time Changer", Category.RENDER, "Fixed time of day") {
             private final long[] T = {1000L, 6000L, 12500L, 14000L, 18000L};
             @Override public void onTick(MinecraftClient mc) {
-                if (mc.world != null) mc.world.setTimeOfDay(T[opt]);
+                Compat.setTimeOfDay(mc, T[opt]);
             }
         }.options(1, "Morning", "Noon", "Sunset", "Night", "Midnight"));
-        reg(new Module("No Weather", Category.VISUAL, "Hide rain and thunder") {
+        reg(new Module("No Weather", Category.RENDER, "Hide rain and thunder") {
             @Override public void onTick(MinecraftClient mc) {
                 if (mc.world != null) { mc.world.setRainGradient(0f); mc.world.setThunderGradient(0f); }
             }
         });
+        reg(new Module("HitBox", Category.RENDER, "Show entity hitboxes (same as F3+B)") {
+            @Override public void onEnable(MinecraftClient mc) { Compat.hitboxes(mc, true); }
+            @Override public void onDisable(MinecraftClient mc) { Compat.hitboxes(mc, false); }
+        });
         reg(new ZoomModule());
 
-        // ---- Client
-        THEME = reg(new Module("Theme Manager", Category.CLIENT, "Menu and HUD accent color (tap < > to change)")
-                .options(0, Theme.NAMES).pin());
-        FRIENDS = reg(new Module("Friend System", Category.CLIENT, "/friend add|remove|list <name>, shown in Target HUD").on());
+        // ---- Misc
+        RECORDER = reg(new RecorderModule());
+        THEME = reg(new Module("Theme Manager", Category.MISC, "Menu and HUD accent color").options(0, Theme.NAMES).pin());
+        FRIENDS = reg(new Module("Friend System", Category.MISC, "/friend add|remove|list <name>, shown in Target HUD").on());
+        for (Module m : ALL) for (Setting st : m.settings) st.def = st.save();
     }
 }

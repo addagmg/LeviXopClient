@@ -3,5 +3,8 @@ pluginManagement {
         maven { url = 'https://maven.fabricmc.net/' }
         gradlePluginPortal()
     }
+    plugins {
+        id 'fabric-loom' version "${loom_version}"
+    }
 }
 rootProject.name = 'LeviXopclient'

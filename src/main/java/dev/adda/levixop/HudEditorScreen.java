@@ -6,7 +6,7 @@ import net.minecraft.text.Text;
 
 import java.util.List;
 
-public class HudEditorScreen extends Screen {
+public class HudEditorScreen extends LxScreen {
     private final Screen parent;
     private HudModule sel;
 
@@ -36,7 +36,7 @@ public class HudEditorScreen extends Screen {
     }
 
     @Override
-    public boolean mouseClicked(double mx, double my, int button) {
+    protected boolean onClick(double mx, double my, int button) {
         sel = null;
         List<Module> all = Modules.ALL;
         for (int i = all.size() - 1; i >= 0; i--) {
@@ -50,13 +50,13 @@ public class HudEditorScreen extends Screen {
     }
 
     @Override
-    public boolean mouseDragged(double mx, double my, int button, double dx, double dy) {
+    protected boolean onDrag(double mx, double my, int button, double dx, double dy) {
         if (sel != null) { sel.x += dx; sel.y += dy; }
         return true;
     }
 
     @Override
-    public boolean mouseReleased(double mx, double my, int button) { sel = null; return true; }
+    protected boolean onRelease(double mx, double my, int button) { sel = null; return true; }
 
     @Override
     public void close() {
