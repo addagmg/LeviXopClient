@@ -1,7 +1,5 @@
 {
   "key.levixopclient.menu": "Open LeviXopclient Menu",
   "key.levixopclient.zoom": "Zoom",
-  "key.levixopclient.rec_pause": "Recorder: Pause / Resume",
-  "key.levixopclient.rec_stop": "Recorder: Stop",
   "category.levixopclient": "LeviXopclient"
 }

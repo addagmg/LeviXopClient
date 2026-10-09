@@ -11,11 +11,11 @@ import java.nio.file.Path;
 import java.util.Properties;
 
 public final class Config {
-    public static Path dir() { return FabricLoader.getInstance().getConfigDir(); }
+    private static Path dir() { return FabricLoader.getInstance().getConfigDir(); }
     public static Path main() { return dir().resolve("levixopclient.properties"); }
+    public static Path profile(int n) { return dir().resolve("levixopclient-profile-" + n + ".properties"); }
 
     private static String key(Module m) { return m.name.replace(' ', '_'); }
-    private static String sk(Setting s) { return s.name.replace(' ', '_'); }
 
     public static void load() { read(main(), null); }
     public static void save() { write(main()); }
@@ -24,16 +24,13 @@ public final class Config {
         Properties p = new Properties();
         for (Module m : Modules.ALL) {
             String k = key(m);
-            if (!m.noSave) p.setProperty(k + ".on", String.valueOf(m.enabled));
+            p.setProperty(k + ".on", String.valueOf(m.enabled));
             if (m.opts != null) p.setProperty(k + ".opt", String.valueOf(m.opt));
-            if (m.key.code > 0) p.setProperty(k + ".key", String.valueOf(m.key.code));
-            for (Setting s : m.settings) if (s.persist()) p.setProperty(k + ".s." + sk(s), s.save());
             if (m instanceof HudModule h) {
                 p.setProperty(k + ".x", String.valueOf(h.x));
                 p.setProperty(k + ".y", String.valueOf(h.y));
             }
         }
-        p.setProperty("profile", Profiles.NAMES[Profiles.selected]);
         try (OutputStream out = Files.newOutputStream(f)) {
             p.store(out, "LeviXopclient");
         } catch (IOException ignored) {}
@@ -48,16 +45,10 @@ public final class Config {
             String k = key(m);
             try {
                 String on = p.getProperty(k + ".on");
-                if (on != null && !m.pinned && !m.noSave) {
+                if (on != null && !m.pinned) {
                     boolean b = Boolean.parseBoolean(on);
                     if (mc == null) m.enabled = b; else m.setEnabled(b, mc);
                 }
-                for (Setting s : m.settings) {
-                    String v = p.getProperty(k + ".s." + sk(s));
-                    if (v != null && s.persist()) s.load(v);
-                }
-                String kc = p.getProperty(k + ".key");
-                m.key.code = kc == null ? -1 : Integer.parseInt(kc);
                 String o = p.getProperty(k + ".opt");
                 if (o != null && m.opts != null) {
                     int v = Integer.parseInt(o);

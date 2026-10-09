@@ -13,7 +13,7 @@ public final class Widgets {
 
     public static class Keystrokes extends HudModule {
         public Keystrokes() {
-            super("Keystrokes", Category.COMBAT, "WASD, mouse buttons and space with CPS");
+            super("Keystrokes", Category.PVP, "WASD, mouse buttons and space with CPS");
             x = 4; y = 120;
         }
 
@@ -32,8 +32,7 @@ public final class Widgets {
         }
 
         private void key(DrawContext ctx, MinecraftClient mc, String label, int kx, int ky, int kw, int kh, boolean down) {
-            if (down) ctx.fill(kx, ky, kx + kw, ky + kh, (Theme.accent() & 0x00FFFFFF) | 0xCC000000);
-            else if (!noBg()) ctx.fill(kx, ky, kx + kw, ky + kh, 0x90000000);
+            ctx.fill(kx, ky, kx + kw, ky + kh, down ? ((Theme.accent() & 0x00FFFFFF) | 0xCC000000) : 0x90000000);
             ctx.drawCenteredTextWithShadow(mc.textRenderer, label, kx + kw / 2, ky + (kh - 8) / 2, 0xFFFFFFFF);
         }
     }
@@ -42,7 +41,7 @@ public final class Widgets {
         private static final EquipmentSlot[] SLOTS = {EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET};
 
         public ArmorStatus() {
-            super("Armor Status", Category.COMBAT, "Armor pieces with remaining durability");
+            super("Armor Status", Category.PVP, "Armor pieces with remaining durability");
             x = 4; y = 220;
         }
 
@@ -53,10 +52,8 @@ public final class Widgets {
             if (!any && !editor) { w = 0; h = 0; return; }
             w = 66; h = 4 * 18 + 2;
             clamp(ctx);
-            if (!noBg()) {
-                ctx.fill(x, y, x + w, y + h, 0x70000000);
-                ctx.fill(x, y, x + 2, y + h, Theme.accent());
-            }
+            ctx.fill(x, y, x + w, y + h, 0x70000000);
+            ctx.fill(x, y, x + 2, y + h, Theme.accent());
             int yy = y + 2;
             for (EquipmentSlot s : SLOTS) {
                 ItemStack st = mc.player.getEquippedStack(s);
@@ -73,7 +70,7 @@ public final class Widgets {
 
     public static class TargetHud extends HudModule {
         public TargetHud() {
-            super("Target HUD", Category.COMBAT, "Name and health of your last target");
+            super("Target HUD", Category.PVP, "Name and health of your last target");
             x = 130; y = 4;
         }
 
@@ -84,10 +81,8 @@ public final class Widgets {
             if (!show && !editor) { w = 0; h = 0; return; }
             w = 112; h = 26;
             clamp(ctx);
-            if (!noBg()) {
-                ctx.fill(x, y, x + w, y + h, 0x90000000);
-                ctx.fill(x, y, x + 2, y + h, Theme.accent());
-            }
+            ctx.fill(x, y, x + w, y + h, 0x90000000);
+            ctx.fill(x, y, x + 2, y + h, Theme.accent());
             String name = show ? t.getName().getString() : "Target";
             if (show && Modules.FRIENDS.enabled && Social.isFriend(name)) name += " [Friend]";
             ctx.drawTextWithShadow(mc.textRenderer, name, x + 6, y + 3, 0xFFFFFFFF);
@@ -103,7 +98,7 @@ public final class Widgets {
 
     public static class InventoryHud extends HudModule {
         public InventoryHud() {
-            super("Inventory HUD", Category.COMBAT, "Shows your main inventory on screen");
+            super("Inventory HUD", Category.PVP, "Shows your main inventory on screen");
             x = 4; y = 300;
         }
 
@@ -111,10 +106,8 @@ public final class Widgets {
         public void render(DrawContext ctx, MinecraftClient mc, boolean editor) {
             w = 9 * 18 + 6; h = 3 * 18 + 6;
             clamp(ctx);
-            if (!noBg()) {
-                ctx.fill(x, y, x + w, y + h, 0x70000000);
-                ctx.fill(x, y, x + w, y + 2, Theme.accent());
-            }
+            ctx.fill(x, y, x + w, y + h, 0x70000000);
+            ctx.fill(x, y, x + w, y + 2, Theme.accent());
             for (int i = 0; i < 27; i++) {
                 ItemStack s = mc.player.getInventory().getStack(9 + i);
                 if (s.isEmpty()) continue;

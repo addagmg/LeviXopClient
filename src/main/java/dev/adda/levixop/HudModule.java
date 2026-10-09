@@ -31,9 +31,6 @@ public class HudModule extends Module {
         y = MathHelper.clamp(y, 0, Math.max(0, ctx.getScaledWindowHeight() - h));
     }
 
-    /** true when the "Remove HUD Background" option is on */
-    protected static boolean noBg() { return Modules.NO_BG != null && Modules.NO_BG.enabled; }
-
     public void render(DrawContext ctx, MinecraftClient mc, boolean editor) {
         List<String> ls = lines(mc);
         if (ls.isEmpty()) {
@@ -45,10 +42,8 @@ public class HudModule extends Module {
         w = tw + 9;
         h = ls.size() * 11 + 3;
         clamp(ctx);
-        if (!noBg()) {
-            ctx.fill(x, y, x + w, y + h, 0x90000000);
-            ctx.fill(x, y, x + 2, y + h, Theme.accent());
-        }
+        ctx.fill(x, y, x + w, y + h, 0x90000000);
+        ctx.fill(x, y, x + 2, y + h, Theme.accent());
         int yy = y + 3;
         for (String s : ls) {
             ctx.drawTextWithShadow(mc.textRenderer, s, x + 5, yy, 0xFFFFFFFF);
