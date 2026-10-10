@@ -120,7 +120,7 @@ public final class Widgets {
                 if (s.isEmpty()) continue;
                 int ix = x + 4 + (i % 9) * 18, iy = y + 4 + (i / 9) * 18;
                 ctx.drawItem(s, ix, iy);
-                ctx.drawStackOverlay(mc.textRenderer, s, ix, iy);
+                Compat.slotOverlay(ctx, mc.textRenderer, s, ix, iy);
             }
         }
     }

@@ -150,7 +150,7 @@ public class ClickGui extends LxScreen {
             String info = "MC 1.21.4 | Fabric " + FABRIC + "  FPS: " + client.getCurrentFps();
             int iw = textRenderer.getWidth(info) + 10, ix = px + pw - 28 - iw;
             ctx.fill(ix, py + 6, ix + iw, py + 24, Ui.BG);
-            ctx.drawBorder(ix, py + 6, iw, 18, Ui.BORDER);
+            Ui.border(ctx, ix, py + 6, iw, 18, Ui.BORDER);
             Ui.t(ctx, textRenderer, info, ix + 5, py + 11, Ui.TXT);
         }
         Ui.t(ctx, textRenderer, "X", px + pw - 18, py + 11, Ui.TXT);
@@ -180,14 +180,14 @@ public class ClickGui extends LxScreen {
 
     private void smallBtn(DrawContext ctx, int x, int y, int w, String label, int col) {
         ctx.fill(x, y, x + w, y + 18, Ui.BG);
-        ctx.drawBorder(x, y, w, 18, Ui.BORDER);
+        Ui.border(ctx, x, y, w, 18, Ui.BORDER);
         Ui.tc(ctx, textRenderer, textRenderer.trimToWidth(label, w - 6), x + w / 2, y + 5, col);
     }
 
     private void renderGrid(DrawContext ctx, int mx, int my, int acc, long now) {
         int tx = cx(), ty = topY();
         ctx.fill(tx, ty, tx + searchW(), ty + 18, Ui.BG);
-        ctx.drawBorder(tx, ty, searchW(), 18, searchFocus ? acc : Ui.BORDER);
+        Ui.border(ctx, tx, ty, searchW(), 18, searchFocus ? acc : Ui.BORDER);
         boolean empty = query.isEmpty() && !searchFocus;
         String s = empty ? "Search modules..." : query + ((searchFocus && now / 500 % 2 == 0) ? "_" : "");
         Ui.t(ctx, textRenderer, textRenderer.trimToWidth(s, searchW() - 10), tx + 5, ty + 5, empty ? Ui.DIM : Ui.TXT);
@@ -219,7 +219,7 @@ public class ClickGui extends LxScreen {
         m.swAnim = Anim.approach(m.swAnim, m.enabled ? 1f : 0f, dt);
         ctx.fill(x, y, x + w, y + CARD_H, Anim.lerpColor(Ui.CARD, Ui.CARD_H, m.hoverAnim));
         boolean on = m.enabled && !m.pinned;
-        ctx.drawBorder(x, y, w, CARD_H, Anim.lerpColor(Ui.SOFT, acc, m.swAnim * (on ? 1f : 0f) + m.hoverAnim * 0.4f));
+        Ui.border(ctx, x, y, w, CARD_H, Anim.lerpColor(Ui.SOFT, acc, m.swAnim * (on ? 1f : 0f) + m.hoverAnim * 0.4f));
         ctx.fill(x + 6, y + 6, x + 28, y + 28, Ui.ICON);
         Ui.tc(ctx, textRenderer, m.name.substring(0, 1), x + 17, y + 13, acc);
         Ui.t(ctx, textRenderer, textRenderer.trimToWidth(m.name, w - 42), x + 34, y + 7, Ui.TXT);
@@ -255,7 +255,7 @@ public class ClickGui extends LxScreen {
     private void renderRecorder(DrawContext ctx, int mx, int my, int acc, long now) {
         int x = cx(), y = topY(), w = cw();
         ctx.fill(x, y, x + w, y + 34, Ui.FIELD);
-        ctx.drawBorder(x, y, w, 34, Ui.SOFT);
+        Ui.border(ctx, x, y, w, 34, Ui.SOFT);
         boolean rec = Recorder.active();
         String state = !rec ? "Idle" : Recorder.paused() ? "PAUSED" : "REC";
         long sec = Recorder.elapsedMs() / 1000;
@@ -272,7 +272,7 @@ public class ClickGui extends LxScreen {
             boolean red = i == 2;
             int bg = i == 0 ? (hov ? Anim.lerpColor(acc, 0xFF000000, 0.12f) : acc) : red ? (hov ? 0xFFDC2626 : 0xFFEF4444) : (hov ? Ui.CARD_H : Ui.FIELD);
             ctx.fill(bx, by, bx + bw, by + 20, bg);
-            if (i == 1) ctx.drawBorder(bx, by, bw, 20, Ui.BORDER);
+            if (i == 1) Ui.border(ctx, bx, by, bw, 20, Ui.BORDER);
             Ui.tc(ctx, textRenderer, labels[i], bx + bw / 2, by + 6, i == 1 ? Ui.TXT : 0xFFFFFFFF);
         }
         double max = Math.max(0, SettingsUi.totalH(pageRows()) - (gridBot() - rowsTop()));
@@ -289,7 +289,7 @@ public class ClickGui extends LxScreen {
             int y = y0 + 14 + i * 22;
             boolean sel = i == Profiles.selected;
             ctx.fill(x1, y, x1 + lw, y + 20, sel ? (acc & 0x00FFFFFF) | 0x33000000 : Ui.CARD);
-            ctx.drawBorder(x1, y, lw, 20, sel ? acc : Ui.SOFT);
+            Ui.border(ctx, x1, y, lw, 20, sel ? acc : Ui.SOFT);
             Ui.t(ctx, textRenderer, Profiles.NAMES[i], x1 + 8, y + 6, Ui.TXT);
         }
         int x2 = x1 + lw + 10, w2 = cw() - lw - 10;
@@ -299,7 +299,7 @@ public class ClickGui extends LxScreen {
             int y = y0 + 14 + i * 26;
             boolean red = i == 3, hov = Ui.in(mx, my, x2, y, w2, 22);
             ctx.fill(x2, y, x2 + w2, y + 22, red ? (hov ? 0xFFDC2626 : 0xFFEF4444) : (hov ? Ui.CARD_H : Ui.FIELD));
-            if (!red) ctx.drawBorder(x2, y, w2, 22, Ui.BORDER);
+            if (!red) Ui.border(ctx, x2, y, w2, 22, Ui.BORDER);
             Ui.tc(ctx, textRenderer, labels[i], x2 + w2 / 2, y + 7, red ? 0xFFFFFFFF : Ui.TXT);
         }
     }
@@ -308,9 +308,9 @@ public class ClickGui extends LxScreen {
     private List<Setting> buildSettingsRows() {
         GameOptions o = client.options;
         List<Setting> l = new ArrayList<>();
-        l.add(new Setting.Mode("Graphics Quality", 0, "Fast", "Fancy") {
-            @Override public int get() { return Lx.nameOf(o.getGraphicsMode()).equals("FAST") ? 0 : 1; }
-            @Override public void set(int i) { o.getGraphicsMode().setValue(Lx.named(o.getGraphicsMode(), i == 0 ? "FAST" : "FANCY")); }
+        if (Compat.graphicsOpt(client) != null) l.add(new Setting.Mode("Graphics Quality", 0, "Fast", "Fancy") {
+            @Override public int get() { return Lx.nameOf(Compat.graphicsOpt(client)).equals("FAST") ? 0 : 1; }
+            @Override public void set(int i) { Lx.setNamed(Compat.graphicsOpt(client), i == 0 ? "FAST" : "FANCY"); }
             @Override public boolean persist() { return false; }
         });
         l.add(new Setting.Slider("Render Distance", 2, 32, 1, 12, "") {

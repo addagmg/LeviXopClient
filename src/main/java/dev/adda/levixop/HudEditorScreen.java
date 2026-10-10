@@ -28,7 +28,7 @@ public class HudEditorScreen extends LxScreen {
         for (Module m : Modules.ALL) {
             if (m.enabled && m instanceof HudModule h) {
                 h.render(ctx, client, true);
-                ctx.drawBorder(h.x - 1, h.y - 1, h.w + 2, h.h + 2, h == sel ? 0xFFFFFFFF : Theme.accent());
+                Ui.border(ctx, h.x - 1, h.y - 1, h.w + 2, h.h + 2, h == sel ? 0xFFFFFFFF : Theme.accent());
             }
         }
         String t = "HUD Editor - drag elements, ESC to save";

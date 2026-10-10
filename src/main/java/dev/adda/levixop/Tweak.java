@@ -33,4 +33,6 @@ public class Tweak extends Module {
     public void settingChanged(MinecraftClient mc) {
         if (enabled) { onDisable(mc); onEnable(mc); }
     }
+
+    protected <T> void setNamed(SimpleOption<T> o, String name) { set(o, Lx.named(o, name)); }
 }

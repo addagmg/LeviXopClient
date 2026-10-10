@@ -61,4 +61,12 @@ public final class Compat {
         if (mc.world != null) ((ClientWorld.Properties) mc.world.getLevelProperties()).setTimeOfDay(t);
     }
     public static void hitboxes(MinecraftClient mc, boolean on) { mc.getEntityRenderDispatcher().setRenderHitboxes(on); }
+
+    public static void slotOverlay(DrawContext ctx, net.minecraft.client.font.TextRenderer tr, net.minecraft.item.ItemStack stack, int x, int y) {
+        ctx.drawStackOverlay(tr, stack, x, y);
+    }
+
+    public static net.minecraft.client.option.SimpleOption<?> graphicsOpt(MinecraftClient mc) {
+        return mc.options.getGraphicsMode();
+    }
 }

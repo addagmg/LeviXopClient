@@ -73,7 +73,7 @@ final class SettingsUi {
         for (Setting s : rows) {
             int h = rowH(s);
             ctx.fill(x, top, x + w, top + h, Ui.FIELD);
-            ctx.drawBorder(x, top, w, h, Ui.SOFT);
+            Ui.border(ctx, x, top, w, h, Ui.SOFT);
             int ty = top + (Math.min(h, 28) - 8) / 2;
             if (s instanceof Setting.Bool b) {
                 Ui.t(ctx, tr, s.name, x + 8, ty, Ui.TXT);
@@ -93,7 +93,7 @@ final class SettingsUi {
                 Ui.t(ctx, tr, s.name, x + 8, ty, Ui.TXT);
                 int bx = x + w - 8 - NUMW, by = top + 4, bh = h - 8;
                 ctx.fill(bx, by, bx + NUMW, by + bh, 0xFFFFFFFF);
-                ctx.drawBorder(bx, by, NUMW, bh, Ui.BORDER);
+                Ui.border(ctx, bx, by, NUMW, bh, Ui.BORDER);
                 Ui.tc(ctx, tr, "-", bx + 12, ty, acc);
                 Ui.tc(ctx, tr, String.valueOf(n.get()), bx + NUMW / 2, ty, Ui.TXT);
                 Ui.tc(ctx, tr, "+", bx + NUMW - 12, ty, acc);
@@ -102,7 +102,7 @@ final class SettingsUi {
                 for (int i = 0; i < mu.opts.length; i++) {
                     int cy = top + 22 + i * 16;
                     ctx.fill(x + 10, cy + 2, x + 20, cy + 12, 0xFFFFFFFF);
-                    ctx.drawBorder(x + 10, cy + 2, 10, 10, Ui.BORDER);
+                    Ui.border(ctx, x + 10, cy + 2, 10, 10, Ui.BORDER);
                     if (mu.get(i)) ctx.fill(x + 12, cy + 4, x + 18, cy + 10, acc);
                     Ui.t(ctx, tr, mu.opts[i], x + 26, cy + 3, Ui.TXT);
                 }
@@ -113,7 +113,7 @@ final class SettingsUi {
                 else if (s instanceof Setting.Key k) label = (listening == s) ? "press a key..." : keyName(k.code);
                 int bw = Math.min(140, w / 2), bx = x + w - 8 - bw, by = top + 4, bh = h - 8;
                 ctx.fill(bx, by, bx + bw, by + bh, 0xFFFFFFFF);
-                ctx.drawBorder(bx, by, bw, bh, listening == s ? acc : Ui.BORDER);
+                Ui.border(ctx, bx, by, bw, bh, listening == s ? acc : Ui.BORDER);
                 Ui.t(ctx, tr, tr.trimToWidth(label, bw - 18), bx + 5, ty, Ui.TXT);
                 if (s instanceof Setting.Mode) {
                     int ax = bx + bw - 11, ay = by + bh / 2 - 1;

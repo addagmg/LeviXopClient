@@ -12,4 +12,6 @@ public final class Lx {
     }
 
     public static String nameOf(SimpleOption<?> o) { return ((Enum<?>) o.getValue()).name(); }
+
+    public static <T> void setNamed(SimpleOption<T> o, String name) { o.setValue(named(o, name)); }
 }

@@ -39,4 +39,12 @@ public final class Compat {
     }
     // TODO: not ported to this Minecraft version yet
     public static void hitboxes(MinecraftClient mc, boolean on) {}
+
+    public static void slotOverlay(DrawContext ctx, net.minecraft.client.font.TextRenderer tr, net.minecraft.item.ItemStack stack, int x, int y) {
+        ctx.drawStackOverlay(tr, stack, x, y);
+    }
+
+    public static net.minecraft.client.option.SimpleOption<?> graphicsOpt(MinecraftClient mc) {
+        return mc.options.getGraphicsMode();
+    }
 }

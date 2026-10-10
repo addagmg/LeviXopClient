@@ -119,7 +119,7 @@ public class ModuleSettingsScreen extends LxScreen {
             int bg = i == 0 ? (hov ? Anim.lerpColor(acc, 0xFF000000, 0.12f) : acc)
                     : red ? (hov ? 0xFFDC2626 : 0xFFEF4444) : (hov ? Ui.CARD_H : Ui.FIELD);
             ctx.fill(bx, by, bx + bw, by + 22, bg);
-            if (i != 0 && !red) ctx.drawBorder(bx, by, bw, 22, Ui.BORDER);
+            if (i != 0 && !red) Ui.border(ctx, bx, by, bw, 22, Ui.BORDER);
             Ui.tc(ctx, textRenderer, labels[i], bx + bw / 2, by + 7, (i == 0 || red) ? 0xFFFFFFFF : Ui.TXT);
         }
         Compat.pop(ctx);

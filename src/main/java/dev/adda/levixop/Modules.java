@@ -152,7 +152,7 @@ public final class Modules {
         reg(new Tweak("FPS Boost", "Fast graphics, no clouds, no entity shadows") {
             private final Setting.Multi f = add(new Setting.Multi("Features", "Fast Graphics", "No Clouds", "No Entity Shadows"));
             @Override public void onEnable(MinecraftClient mc) {
-                if (f.get(0)) set(mc.options.getGraphicsMode(), Lx.named(mc.options.getGraphicsMode(), "FAST"));
+                if (f.get(0)) if (Compat.graphicsOpt(mc) != null) setNamed(Compat.graphicsOpt(mc), "FAST");
                 if (f.get(1)) set(mc.options.getCloudRenderMode(), Lx.named(mc.options.getCloudRenderMode(), "OFF"));
                 if (f.get(2)) set(mc.options.getEntityShadows(), false);
             }
